@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budo Akatemia – Harjoituskirjaukset</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #f5f1ea;
+    --paper:     #ffffff;
+    --ink:       #1a1815;
+    --muted:     #6b6660;
+    --line:      #d9d3c8;
+    --accent:    #8b1c1c;
+    --accent-dk: #6e1414;
+    --accent-bg: #f7e8e8;
+    --shadow:    0 1px 2px rgba(26,24,21,.04), 0 8px 24px rgba(26,24,21,.06);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  body {
+    font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: 20px 16px 40px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 600px; margin: 0 auto; }
+
+  .header { text-align: center; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .header .kanji { font-size: 36px; color: var(--accent); line-height: 1; margin-bottom: 8px; font-weight: 600; }
+  .header h1 { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 26px; margin: 0 0 4px; letter-spacing: 0.5px; }
+  .header .sub { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
+
+  .tabs {
+    display: flex; background: var(--paper);
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 4px; margin-bottom: 20px; box-shadow: var(--shadow);
+    gap: 2px;
+  }
+  .tab {
+    flex: 1; padding: 10px 4px;
+    background: transparent; border: none; color: var(--muted);
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    cursor: pointer; border-radius: 4px; transition: all .15s;
+    white-space: nowrap;
+  }
+  .tab.active { background: var(--ink); color: var(--paper); }
+  .tab:not(.active):hover { color: var(--ink); }
+
+  .card {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 6px; padding: 24px; box-shadow: var(--shadow);
+  }
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block; font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--muted); margin-bottom: 8px;
+  }
+
+  select, input[type="password"], input[type="text"] {
+    width: 100%; padding: 12px 40px 12px 14px;
+    border: 1px solid var(--line); border-radius: 4px;
+    font-family: inherit; font-size: 16px; color: var(--ink);
+    background-color: var(--paper);
+    transition: border-color .15s;
+  }
+  input[type="password"], input[type="text"] { padding-right: 14px; }
+  select {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%231a1815' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    appearance: none; -webkit-appearance: none; -moz-appearance: none;
+    cursor: pointer;
+  }
+  select:focus, input:focus { outline: none; border-color: var(--accent); }
+  select:disabled { background-color: #f5f1ea; opacity: .6; cursor: wait; }
+
+  .hp { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important; }
+
+  .days { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .day-opt input { display: none; }
+  .day-opt label {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 14px 8px; border: 1.5px solid var(--line);
+    border-radius: 4px; cursor: pointer; text-align: center;
+    transition: all .15s; text-transform: none; letter-spacing: 0;
+    font-weight: 500; color: var(--ink); font-size: 15px; margin: 0;
+  }
+  .day-opt .small { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+  .day-opt input:checked + label { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-dk); }
+  .day-opt input:checked + label .small { color: var(--accent); }
+  .day-opt input:disabled + label { opacity: .3; cursor: not-allowed; }
+
+  .kobudo { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 4px; background: #faf8f3; transition: opacity .2s; }
+  .kobudo.disabled { opacity: .4; pointer-events: none; }
+  .kobudo input { width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; }
+  .kobudo .text-main { font-weight: 500; font-size: 15px; }
+  .kobudo .text-sub { font-size: 12px; color: var(--muted); }
+
+  .btn { width: 100%; padding: 14px; background: var(--ink); color: var(--paper); border: none; border-radius: 4px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: background .15s; margin-top: 4px; }
+  .btn:hover:not(:disabled) { background: var(--accent); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .date-display { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--ink); padding: 12px 14px; background: #faf8f3; border: 1px solid var(--line); border-radius: 4px; text-align: center; letter-spacing: 0.5px; }
+
+  .closed-banner { background: #fef5e7; border: 1px solid #f0c97a; color: #6b4a1a; padding: 16px; border-radius: 4px; margin-bottom: 18px; font-size: 14px; text-align: center; }
+  .closed-banner strong { font-weight: 600; }
+
+  .msg { padding: 12px 14px; border-radius: 4px; margin-top: 14px; font-size: 14px; display: none; }
+  .msg.show { display: block; }
+  .msg.ok { background: #e8f1e8; color: #2d5a2d; border: 1px solid #c2dcc2; }
+  .msg.err { background: #fbe8e8; color: #7a1818; border: 1px solid #e8c2c2; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  .stat { background: #faf8f3; border: 1px solid var(--line); border-left: 3px solid var(--accent); padding: 16px; border-radius: 4px; }
+  .stat .label-stat { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 4px; }
+  .stat .num { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; color: var(--ink); line-height: 1; }
+  .stat .num-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  .stat-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 16px; }
+  .stat-grid-3 .stat { padding: 14px 10px; }
+  .stat-grid-3 .stat .num { font-size: 28px; }
+  .stat-grid-3 .stat .label-stat { font-size: 10px; }
+
+  .breakdown { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .breakdown-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 12px; }
+  .breakdown-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px dashed var(--line); }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-row .v { font-weight: 600; }
+
+  /* Pylväskaavio */
+  .chart-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .chart-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 12px; }
+  .chart { width: 100%; height: auto; display: block; }
+  .chart-month-label { font-size: 11px; fill: var(--muted); font-family: inherit; }
+  .chart-value-label { font-size: 11px; fill: var(--ink); font-family: inherit; font-weight: 500; }
+  .chart-bar { fill: var(--ink); }
+  .chart-bar.current { fill: var(--accent); }
+  .chart-bar.empty { fill: var(--line); }
+
+  /* Ohjaajanäkymä */
+  .admin-pin-box { text-align: center; padding: 8px 0; }
+  .admin-pin-box .lock-icon { font-size: 32px; color: var(--muted); margin-bottom: 12px; }
+
+  .admin-list { margin-top: 8px; }
+  .admin-row {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .admin-row:last-child { border-bottom: none; }
+  .admin-row-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .admin-row-name { font-weight: 500; font-size: 15px; color: var(--ink); }
+  .admin-row-name.zero { color: var(--muted); }
+  .admin-row-total {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 600;
+    color: var(--accent);
+  }
+  .admin-row-total.zero { color: var(--muted); }
+  .admin-sparkline { width: 100%; height: 32px; display: block; }
+  .admin-month-row {
+    display: flex; gap: 6px; font-size: 9px; color: var(--muted);
+    margin-top: 4px; padding: 0 1px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .admin-month-row span { flex: 1; text-align: center; }
+
+  .admin-summary {
+    background: #faf8f3;
+    padding: 14px;
+    border-radius: 4px;
+    margin-bottom: 18px;
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .admin-summary strong { color: var(--ink); font-weight: 600; }
+
+  .admin-logout {
+    margin-top: 18px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--line);
+  }
+  .admin-logout:hover:not(:disabled) { background: var(--line); color: var(--ink); }
+
+  .hidden { display: none; }
+
+  .loader { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--paper); border-top-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -2px; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-state {
+    text-align: center; padding: 40px 20px;
+    color: var(--muted); font-size: 14px;
+  }
+
+  .footer { text-align: center; margin-top: 24px; font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="kanji">武</div>
+    <h1>Budo Akatemia</h1>
+    <div class="sub">Harjoituskirjaukset</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="log">Kirjaa</button>
+    <button class="tab" data-tab="own">Omat</button>
+    <button class="tab" data-tab="club">Klubi</button>
+    <button class="tab" data-tab="admin">Ohjaaja</button>
+  </div>
+
+  <!-- =========== KIRJAUS =========== -->
+  <div class="card" id="view-log">
+    <div class="closed-banner hidden" id="closedBanner">
+      <strong id="closedDay">Tänään</strong> ei ole harjoitusta.<br>
+      Kirjaa harjoitus aina sen päivänä — tiistaina, torstaina tai sunnuntaina.
+    </div>
+
+    <div class="field">
+      <label>Päiväys</label>
+      <div class="date-display" id="dateDisplay"></div>
+    </div>
+
+    <div class="field">
+      <label for="nimi">Nimi</label>
+      <select id="nimi" disabled>
+        <option value="">Ladataan jäsenlistaa...</option>
+      </select>
+      <input type="text" id="hp_field" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+    </div>
+
+    <div class="field">
+      <label>Harjoituspäivä</label>
+      <div class="days">
+        <div class="day-opt"><input type="radio" name="paiva" id="d-ti" value="Tiistai"><label for="d-ti">Ti<span class="small">Tiistai</span></label></div>
+        <div class="day-opt"><input type="radio" name="paiva" id="d-to" value="Torstai"><label for="d-to">To<span class="small">Torstai</span></label></div>
+        <div class="day-opt"><input type="radio" name="paiva" id="d-su" value="Sunnuntai"><label for="d-su">Su<span class="small">Sunnuntai</span></label></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="kobudo disabled" id="kobudoBox">
+        <input type="checkbox" id="kobudo">
+        <div>
+          <div class="text-main">Osallistuin myös kobudoon</div>
+          <div class="text-sub">Vain tiistai ja torstai</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" id="submitBtn">Kirjaa harjoitus</button>
+    <div class="msg" id="logMsg"></div>
+  </div>
+
+  <!-- =========== OMAT =========== -->
+  <div class="card hidden" id="view-own">
+    <div class="field">
+      <label for="hakuNimi">Hae nimellä</label>
+      <select id="hakuNimi" disabled>
+        <option value="">Ladataan jäsenlistaa...</option>
+      </select>
+    </div>
+    <button class="btn" id="hakuBtn">Hae omat tilastot</button>
+    <div class="msg" id="ownMsg"></div>
+
+    <div id="ownResult" class="hidden">
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="label-stat">Tässä kuussa</div>
+          <div class="num" id="kuukausi">0</div>
+          <div class="num-sub" id="kuukausiKobudo"></div>
+        </div>
+        <div class="stat">
+          <div class="label-stat">Tänä vuonna</div>
+          <div class="num" id="vuosi">0</div>
+          <div class="num-sub" id="vuosiKobudo"></div>
+        </div>
+      </div>
+
+      <div class="chart-section">
+        <div class="chart-title">Harjoitukset kuukausittain</div>
+        <div id="ownChart"></div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">Erittely vuoden ajalta</div>
+        <div class="breakdown-row"><span>Tiistai</span><span class="v" id="b-ti">0</span></div>
+        <div class="breakdown-row"><span>Torstai</span><span class="v" id="b-to">0</span></div>
+        <div class="breakdown-row"><span>Sunnuntai</span><span class="v" id="b-su">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== KLUBI =========== -->
+  <div class="card hidden" id="view-club">
+    <div class="loading-state" id="clubLoading">Ladataan klubin tilastoja...</div>
+    <div class="msg" id="clubMsg"></div>
+
+    <div id="clubResult" class="hidden">
+      <div class="stat-grid-3">
+        <div class="stat">
+          <div class="label-stat">Tänä vuonna</div>
+          <div class="num" id="clubVuosi">0</div>
+          <div class="num-sub">harjoitusta</div>
+        </div>
+        <div class="stat">
+          <div class="label-stat">Aktiivisia jäseniä</div>
+          <div class="num" id="clubAktiiviset">0</div>
+          <div class="num-sub">vähintään 1 krt</div>
+        </div>
+        <div class="stat">
+          <div class="label-stat">Keskiarvo</div>
+          <div class="num" id="clubKeskiarvo">0</div>
+          <div class="num-sub">per jäsen</div>
+        </div>
+      </div>
+
+      <div class="chart-section">
+        <div class="chart-title">Klubin harjoitukset kuukausittain</div>
+        <div id="clubChart"></div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">Erittely viikonpäivittäin</div>
+        <div class="breakdown-row"><span>Tiistai</span><span class="v" id="cb-ti">0</span></div>
+        <div class="breakdown-row"><span>Torstai</span><span class="v" id="cb-to">0</span></div>
+        <div class="breakdown-row"><span>Sunnuntai</span><span class="v" id="cb-su">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========== OHJAAJA =========== -->
+  <div class="card hidden" id="view-admin">
+
+    <div id="adminPinView">
+      <div class="admin-pin-box">
+        <div class="lock-icon">🔒</div>
+      </div>
+      <div class="field">
+        <label for="adminPin">Ohjaajan PIN-koodi</label>
+        <input type="password" id="adminPin" inputmode="numeric" autocomplete="off" placeholder="••••">
+      </div>
+      <button class="btn" id="adminLoginBtn">Avaa ohjaajanäkymä</button>
+      <div class="msg" id="adminMsg"></div>
+    </div>
+
+    <div id="adminContent" class="hidden">
+      <div class="admin-summary" id="adminSummary"></div>
+      <div class="admin-list" id="adminList"></div>
+      <button class="btn admin-logout" id="adminLogoutBtn">Sulje ohjaajanäkymä</button>
+    </div>
+  </div>
+
+  <div class="footer">Shorin-ryu Seibukan • Kuopio</div>
+</div>
+
+<script>
+  // ============================================================
+  //  ASETA TÄHÄN OMA APPS SCRIPT WEB APP -OSOITE
+  // ============================================================
+  const API_URL = 'https://script.google.com/macros/s/AKfycbw0WKI_h9GqgQxTb9u70vsKwDZdHQIMhDCQNqVERbvDoXo8mnwsCzwindjEwIl53IMz/exec';
+
+  const FI_DAYS = ['Sunnuntai','Maanantai','Tiistai','Keskiviikko','Torstai','Perjantai','Lauantai'];
+  const FI_MONTHS_FULL = ['tammikuuta','helmikuuta','maaliskuuta','huhtikuuta','toukokuuta','kesäkuuta','heinäkuuta','elokuuta','syyskuuta','lokakuuta','marraskuuta','joulukuuta'];
+  const FI_MONTHS_SHORT = ['Tam','Hel','Maa','Huh','Tou','Kes','Hei','Elo','Syy','Lok','Mar','Jou'];
+  const DAY_TO_RADIO = { 0: 'd-su', 2: 'd-ti', 4: 'd-to' };
+
+  // Tila
+  let clubLoaded = false;
+  let adminToken = null;  // tallennettu PIN ohjaajanäkymässä
+
+  // --- Päiväys ---
+  function todayStr() {
+    const d = new Date();
+    return `${FI_DAYS[d.getDay()]} ${d.getDate()}. ${FI_MONTHS_FULL[d.getMonth()]} ${d.getFullYear()}`;
+  }
+  function todayISO() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  document.getElementById('dateDisplay').textContent = todayStr();
+
+  // --- Lukitse päiväpainikkeet ---
+  function setupDayLock() {
+    const wd = new Date().getDay();
+    const isTraining = (wd === 0 || wd === 2 || wd === 4);
+    const allRadios = document.querySelectorAll('input[name="paiva"]');
+    if (!isTraining) {
+      document.getElementById('closedBanner').classList.remove('hidden');
+      document.getElementById('closedDay').textContent = FI_DAYS[wd];
+      allRadios.forEach(r => r.disabled = true);
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Lomake suljettu';
+    } else {
+      const allowedId = DAY_TO_RADIO[wd];
+      allRadios.forEach(r => {
+        if (r.id === allowedId) { r.disabled = false; r.checked = true; }
+        else { r.disabled = true; }
+      });
+      const kobudoAllowed = (wd === 2 || wd === 4);
+      document.getElementById('kobudoBox').classList.toggle('disabled', !kobudoAllowed);
+    }
+  }
+  setupDayLock();
+
+  // --- Jäsenlistan lataus ---
+  async function loadMembers() {
+    try {
+      const res = await fetch(`${API_URL}?action=members`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.jasenet)) {
+        populateSelect('nimi', data.jasenet, 'Valitse nimi');
+        populateSelect('hakuNimi', data.jasenet, 'Valitse nimi');
+      } else {
+        showMembersError(data.error || 'Jäsenlistan haku epäonnistui');
+      }
+    } catch (err) {
+      showMembersError('Yhteysvirhe — jäsenlistaa ei voitu ladata');
+    }
+  }
+  function populateSelect(id, names, placeholder) {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '';
+    const opt = document.createElement('option');
+    opt.value = ''; opt.textContent = placeholder;
+    sel.appendChild(opt);
+    names.forEach(n => {
+      const o = document.createElement('option');
+      o.value = n; o.textContent = n;
+      sel.appendChild(o);
+    });
+    sel.disabled = false;
+  }
+  function showMembersError(msg) {
+    ['nimi','hakuNimi'].forEach(id => {
+      const sel = document.getElementById(id);
+      sel.innerHTML = `<option value="">${msg}</option>`;
+      sel.disabled = true;
+    });
+    if (!document.getElementById('closedBanner').classList.contains('hidden') === false) {
+      document.getElementById('submitBtn').disabled = true;
+    }
+  }
+  loadMembers();
+
+  // --- Tabit ---
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      const tab = t.dataset.tab;
+      document.getElementById('view-log').classList.toggle('hidden', tab !== 'log');
+      document.getElementById('view-own').classList.toggle('hidden', tab !== 'own');
+      document.getElementById('view-club').classList.toggle('hidden', tab !== 'club');
+      document.getElementById('view-admin').classList.toggle('hidden', tab !== 'admin');
+
+      // Klubi: lataa kerran ensimmäisellä avauksella
+      if (tab === 'club' && !clubLoaded) loadClub();
+    });
+  });
+
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.className = `msg show ${type}`;
+    el.textContent = text;
+  }
+  function hideMsg(id) { document.getElementById(id).className = 'msg'; }
+
+  // ============================================================
+  //  PYLVÄSKAAVIO (SVG)
+  // ============================================================
+  function renderBarChart(monthlyData, opts) {
+    opts = opts || {};
+    const max = Math.max.apply(null, monthlyData.concat([1]));
+    const currentMonth = (typeof opts.currentMonth === 'number') ? opts.currentMonth : new Date().getMonth();
+
+    const W = 480, H = 160;
+    const chartTop = 24, chartBottom = 130;
+    const labelY = 150;
+    const chartHeight = chartBottom - chartTop;
+    const slot = W / 12;
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" class="chart" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">`;
+    monthlyData.forEach((val, i) => {
+      const x = i * slot + slot * 0.18;
+      const w = slot * 0.64;
+      const h = val > 0 ? (val / max) * chartHeight : 2;
+      const y = chartBottom - h;
+      const isCurrent = i === currentMonth;
+      const isEmpty = val === 0;
+      const cls = isEmpty ? 'chart-bar empty' : (isCurrent ? 'chart-bar current' : 'chart-bar');
+      svg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" class="${cls}" rx="2" ry="2"/>`;
+      if (val > 0) {
+        svg += `<text x="${(x + w/2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle" class="chart-value-label">${val}</text>`;
+      }
+      svg += `<text x="${(x + w/2).toFixed(1)}" y="${labelY}" text-anchor="middle" class="chart-month-label">${FI_MONTHS_SHORT[i]}</text>`;
+    });
+    svg += '</svg>';
+    return svg;
+  }
+
+  function renderSparkline(monthlyData, sharedMax) {
+    const W = 480, H = 36;
+    const max = sharedMax || Math.max.apply(null, monthlyData.concat([1]));
+    const currentMonth = new Date().getMonth();
+    const slot = W / 12;
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" class="admin-sparkline" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">`;
+    monthlyData.forEach((val, i) => {
+      const x = i * slot + 2;
+      const w = slot - 4;
+      const h = val > 0 ? Math.max((val / max) * (H - 2), 2) : 1;
+      const y = H - h;
+      const isCurrent = i === currentMonth;
+      const isEmpty = val === 0;
+      const cls = isEmpty ? 'chart-bar empty' : (isCurrent ? 'chart-bar current' : 'chart-bar');
+      svg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" class="${cls}" rx="1"/>`;
+    });
+    svg += '</svg>';
+    return svg;
+  }
+
+  // ============================================================
+  //  KIRJAUS
+  // ============================================================
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    hideMsg('logMsg');
+    const nimi = document.getElementById('nimi').value;
+    const paivaEl = document.querySelector('input[name="paiva"]:checked');
+    const honeypot = document.getElementById('hp_field').value;
+
+    if (!nimi) { showMsg('logMsg', 'Valitse nimesi listalta.', 'err'); return; }
+    if (!paivaEl) { showMsg('logMsg', 'Valitse harjoituspäivä.', 'err'); return; }
+
+    const payload = {
+      nimi, paiva: paivaEl.value, paivays: todayISO(),
+      kobudo: document.getElementById('kobudo').checked,
+      hp: honeypot
+    };
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader"></span>Tallennetaan...';
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        showMsg('logMsg', `Kirjaus tallennettu: ${nimi}, ${paivaEl.value}${payload.kobudo ? ' + kobudo' : ''}.`, 'ok');
+        document.getElementById('nimi').selectedIndex = 0;
+        document.getElementById('kobudo').checked = false;
+        clubLoaded = false;  // Pakota klubidata päivittymään seuraavalla avaamisella
+      } else {
+        showMsg('logMsg', 'Virhe: ' + (data.error || 'tuntematon'), 'err');
+      }
+    } catch (err) {
+      showMsg('logMsg', 'Yhteysvirhe. Yritä uudelleen.', 'err');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Kirjaa harjoitus';
+    }
+  });
+
+  // ============================================================
+  //  OMAT TILASTOT
+  // ============================================================
+  document.getElementById('hakuBtn').addEventListener('click', async () => {
+    hideMsg('ownMsg');
+    document.getElementById('ownResult').classList.add('hidden');
+    const nimi = document.getElementById('hakuNimi').value;
+    if (!nimi) { showMsg('ownMsg', 'Valitse nimi haettavaksi.', 'err'); return; }
+
+    const btn = document.getElementById('hakuBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader"></span>Haetaan...';
+
+    try {
+      const url = `${API_URL}?action=own&nimi=${encodeURIComponent(nimi)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('kuukausi').textContent = data.kuukausi;
+        document.getElementById('vuosi').textContent = data.vuosi;
+        document.getElementById('kuukausiKobudo').textContent =
+          data.kuukausiKobudo > 0 ? `+ ${data.kuukausiKobudo} kobudo` : '';
+        document.getElementById('vuosiKobudo').textContent =
+          data.vuosiKobudo > 0 ? `+ ${data.vuosiKobudo} kobudo` : '';
+        document.getElementById('b-ti').textContent = data.paivat.Tiistai || 0;
+        document.getElementById('b-to').textContent = data.paivat.Torstai || 0;
+        document.getElementById('b-su').textContent = data.paivat.Sunnuntai || 0;
+        document.getElementById('ownChart').innerHTML = renderBarChart(data.kuukaudet || []);
+        document.getElementById('ownResult').classList.remove('hidden');
+        if (data.vuosi === 0) {
+          showMsg('ownMsg', `Nimellä "${nimi}" ei löytynyt kirjauksia tältä vuodelta.`, 'err');
+        }
+      } else {
+        showMsg('ownMsg', 'Virhe: ' + (data.error || 'tuntematon'), 'err');
+      }
+    } catch (err) {
+      showMsg('ownMsg', 'Yhteysvirhe. Yritä uudelleen.', 'err');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Hae omat tilastot';
+    }
+  });
+
+  // ============================================================
+  //  KLUBI
+  // ============================================================
+  async function loadClub() {
+    hideMsg('clubMsg');
+    document.getElementById('clubLoading').classList.remove('hidden');
+    document.getElementById('clubResult').classList.add('hidden');
+
+    try {
+      const res = await fetch(`${API_URL}?action=club`);
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('clubVuosi').textContent = data.vuosi;
+        document.getElementById('clubAktiiviset').textContent = data.aktiiviset;
+        document.getElementById('clubKeskiarvo').textContent = data.keskiarvo;
+        document.getElementById('cb-ti').textContent = data.paivat.Tiistai || 0;
+        document.getElementById('cb-to').textContent = data.paivat.Torstai || 0;
+        document.getElementById('cb-su').textContent = data.paivat.Sunnuntai || 0;
+        document.getElementById('clubChart').innerHTML = renderBarChart(data.kuukaudet || []);
+        document.getElementById('clubResult').classList.remove('hidden');
+        clubLoaded = true;
+      } else {
+        showMsg('clubMsg', 'Virhe: ' + (data.error || 'tuntematon'), 'err');
+      }
+    } catch (err) {
+      showMsg('clubMsg', 'Yhteysvirhe. Yritä uudelleen.', 'err');
+    } finally {
+      document.getElementById('clubLoading').classList.add('hidden');
+    }
+  }
+
+  // ============================================================
+  //  OHJAAJA
+  // ============================================================
+  document.getElementById('adminPin').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('adminLoginBtn').click();
+  });
+
+  document.getElementById('adminLoginBtn').addEventListener('click', async () => {
+    hideMsg('adminMsg');
+    const pin = document.getElementById('adminPin').value.trim();
+    if (!pin) { showMsg('adminMsg', 'Anna PIN-koodi.', 'err'); return; }
+
+    const btn = document.getElementById('adminLoginBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader"></span>Tarkistetaan...';
+
+    try {
+      const res = await fetch(`${API_URL}?action=admin&pin=${encodeURIComponent(pin)}`);
+      const data = await res.json();
+      if (data.success) {
+        adminToken = pin;
+        renderAdminView(data);
+        document.getElementById('adminPinView').classList.add('hidden');
+        document.getElementById('adminContent').classList.remove('hidden');
+        document.getElementById('adminPin').value = '';
+      } else {
+        showMsg('adminMsg', data.error || 'Virhe', 'err');
+      }
+    } catch (err) {
+      showMsg('adminMsg', 'Yhteysvirhe.', 'err');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Avaa ohjaajanäkymä';
+    }
+  });
+
+  document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+    adminToken = null;
+    document.getElementById('adminContent').classList.add('hidden');
+    document.getElementById('adminPinView').classList.remove('hidden');
+    document.getElementById('adminList').innerHTML = '';
+    hideMsg('adminMsg');
+  });
+
+  function renderAdminView(data) {
+    const list = document.getElementById('adminList');
+    list.innerHTML = '';
+
+    // Yhteenveto
+    const yhteensaVuosi = (data.kuukaudetYhteensa || []).reduce((a,b) => a+b, 0);
+    const aktiiviset = (data.jasenet || []).filter(j => j.vuosi > 0).length;
+    document.getElementById('adminSummary').innerHTML =
+      `Vuosi <strong>${data.vuosi}</strong> · ` +
+      `<strong>${yhteensaVuosi}</strong> kirjausta yhteensä · ` +
+      `<strong>${aktiiviset}</strong> / <strong>${data.jasenet.length}</strong> jäsentä aktiivisia`;
+
+    // Yhteinen y-akseli kaikille jäsenille → vertailtavuus
+    let sharedMax = 1;
+    (data.jasenet || []).forEach(j => {
+      const m = Math.max.apply(null, j.kuukaudet.concat([1]));
+      if (m > sharedMax) sharedMax = m;
+    });
+
+    // Kuukausilabelit pylväiden ylle
+    const monthRow = `<div class="admin-month-row">${FI_MONTHS_SHORT.map(m => `<span>${m}</span>`).join('')}</div>`;
+
+    (data.jasenet || []).forEach(j => {
+      const isZero = j.vuosi === 0;
+      const row = document.createElement('div');
+      row.className = 'admin-row';
+      row.innerHTML = `
+        <div class="admin-row-header">
+          <span class="admin-row-name${isZero ? ' zero' : ''}">${escapeHtml(j.nimi)}</span>
+          <span class="admin-row-total${isZero ? ' zero' : ''}">${j.vuosi}</span>
+        </div>
+        ${renderSparkline(j.kuukaudet, sharedMax)}
+        ${monthRow}
+      `;
+      list.appendChild(row);
+    });
+
+    if ((data.jasenet || []).length === 0) {
+      list.innerHTML = '<div class="loading-state">Ei jäseniä listassa.</div>';
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+</script>
+</body>
+</html>
