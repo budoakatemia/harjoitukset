@@ -17,6 +17,7 @@
     --accent:    #8b1c1c;
     --accent-dk: #6e1414;
     --accent-bg: #f7e8e8;
+    --kobudo:    #2f6a5e;
     --shadow:    0 1px 2px rgba(26,24,21,.04), 0 8px 24px rgba(26,24,21,.06);
   }
   * { box-sizing: border-box; }
@@ -81,6 +82,11 @@
     cursor: pointer;
   }
   select:focus, input:focus { outline: none; border-color: var(--accent); }
+  select:focus-visible, input:focus-visible,
+  .btn:focus-visible, .tab:focus-visible, .admin-tools button:focus-visible,
+  .day-opt input:focus-visible + label {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
   select:disabled { background-color: #f5f1ea; opacity: .6; cursor: wait; }
 
   .hp { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important; }
@@ -124,17 +130,27 @@
   .stat .label-stat { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 4px; }
   .stat .num { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; color: var(--ink); line-height: 1; }
   .stat .num-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .stat .num-sub .kobudo-val { color: var(--kobudo); font-weight: 600; }
 
   .stat-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 16px; }
   .stat-grid-3 .stat { padding: 14px 10px; }
   .stat-grid-3 .stat .num { font-size: 28px; }
   .stat-grid-3 .stat .label-stat { font-size: 10px; }
+  .stat-grid-3 .stat .num-sub { font-size: 11px; line-height: 1.35; }
+
+  @media (max-width: 400px) {
+    .stat-grid-3 { grid-template-columns: 1fr 1fr; }
+    .stat-grid-3 .stat:last-child { grid-column: span 2; }
+  }
+
+  .stat-note { font-size: 11px; color: var(--muted); margin-top: 10px; text-align: center; }
 
   .breakdown { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
   .breakdown-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 12px; }
   .breakdown-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px dashed var(--line); }
   .breakdown-row:last-child { border-bottom: none; }
   .breakdown-row .v { font-weight: 600; }
+  .breakdown-row .v-kobudo { color: var(--kobudo); font-weight: 500; font-size: 12px; margin-left: 10px; }
 
   /* Pylväskaavio */
   .chart-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
@@ -145,6 +161,7 @@
   .chart-bar { fill: var(--ink); }
   .chart-bar.current { fill: var(--accent); }
   .chart-bar.empty { fill: var(--line); }
+  .chart-bar.kobudo { fill: var(--kobudo); }
 
   /* Ohjaajanäkymä */
   .admin-pin-box { text-align: center; padding: 8px 0; }
@@ -156,9 +173,12 @@
     border-bottom: 1px solid var(--line);
   }
   .admin-row:last-child { border-bottom: none; }
-  .admin-row-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .admin-row-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; gap: 12px; }
   .admin-row-name { font-weight: 500; font-size: 15px; color: var(--ink); }
   .admin-row-name.zero { color: var(--muted); }
+  .admin-row-figures { display: flex; align-items: baseline; gap: 12px; white-space: nowrap; }
+  .admin-row-kobudo { font-size: 12px; font-weight: 500; color: var(--kobudo); }
+  .admin-row-kobudo.none { color: var(--muted); opacity: .55; }
   .admin-row-total {
     font-family: 'Cormorant Garamond', serif;
     font-size: 22px; font-weight: 600;
@@ -166,12 +186,23 @@
   }
   .admin-row-total.zero { color: var(--muted); }
   .admin-sparkline { width: 100%; height: 32px; display: block; }
-  .admin-month-row {
+  .admin-month-header {
     display: flex; gap: 6px; font-size: 9px; color: var(--muted);
-    margin-top: 4px; padding: 0 1px;
+    padding: 0 1px 8px; border-bottom: 1px solid var(--line);
     text-transform: uppercase; letter-spacing: 0.5px;
   }
-  .admin-month-row span { flex: 1; text-align: center; }
+  .admin-month-header span { flex: 1; text-align: center; }
+
+  .admin-tools { display: flex; gap: 8px; margin-bottom: 14px; }
+  .admin-tools button {
+    flex: 1; padding: 9px 6px; font-family: inherit; font-size: 12px;
+    color: var(--muted); background: transparent;
+    border: 1px solid var(--line); border-radius: 4px; cursor: pointer;
+    transition: all .15s;
+  }
+  .admin-tools button:hover:not(:disabled) { color: var(--ink); border-color: var(--muted); }
+  .admin-tools button:disabled { opacity: .5; cursor: wait; }
+  .admin-updated { font-size: 11px; color: var(--muted); text-align: center; margin-bottom: 12px; }
 
   .admin-summary {
     background: #faf8f3;
@@ -181,8 +212,17 @@
     font-size: 13px;
     color: var(--muted);
     text-align: center;
+    line-height: 1.7;
   }
   .admin-summary strong { color: var(--ink); font-weight: 600; }
+  .admin-summary .kobudo-val { color: var(--kobudo); font-weight: 600; }
+
+  .admin-note {
+    margin-top: 16px; padding-top: 14px;
+    border-top: 1px solid var(--line);
+    font-size: 11px; color: var(--muted);
+    text-align: center; line-height: 1.6;
+  }
 
   .admin-logout {
     margin-top: 18px;
@@ -283,19 +323,19 @@
           <div class="num-sub" id="kuukausiKobudo"></div>
         </div>
         <div class="stat">
-          <div class="label-stat">Tänä vuonna</div>
+          <div class="label-stat">12 kk</div>
           <div class="num" id="vuosi">0</div>
           <div class="num-sub" id="vuosiKobudo"></div>
         </div>
       </div>
 
       <div class="chart-section">
-        <div class="chart-title">Harjoitukset kuukausittain</div>
+        <div class="chart-title" id="ownChartTitle">Harjoitukset kuukausittain</div>
         <div id="ownChart"></div>
       </div>
 
       <div class="breakdown">
-        <div class="breakdown-title">Erittely vuoden ajalta</div>
+        <div class="breakdown-title">Erittely 12 kk ajalta</div>
         <div class="breakdown-row"><span>Tiistai</span><span class="v" id="b-ti">0</span></div>
         <div class="breakdown-row"><span>Torstai</span><span class="v" id="b-to">0</span></div>
         <div class="breakdown-row"><span>Sunnuntai</span><span class="v" id="b-su">0</span></div>
@@ -311,31 +351,32 @@
     <div id="clubResult" class="hidden">
       <div class="stat-grid-3">
         <div class="stat">
-          <div class="label-stat">Tänä vuonna</div>
+          <div class="label-stat">12 kk</div>
           <div class="num" id="clubVuosi">0</div>
-          <div class="num-sub">harjoitusta</div>
+          <div class="num-sub">harjoitusta, joista<br><span class="kobudo-val" id="clubKobudo">0</span> kobudoa</div>
         </div>
         <div class="stat">
           <div class="label-stat">Aktiivisia jäseniä</div>
           <div class="num" id="clubAktiiviset">0</div>
-          <div class="num-sub">vähintään 1 krt</div>
+          <div class="num-sub">joista<br><span class="kobudo-val" id="clubKobudoJasenet">0</span> kobudossa</div>
         </div>
         <div class="stat">
           <div class="label-stat">Keskiarvo</div>
           <div class="num" id="clubKeskiarvo">0</div>
-          <div class="num-sub">per jäsen</div>
+          <div class="num-sub">harjoitusta<br>per jäsen</div>
         </div>
       </div>
+      <div class="stat-note" id="clubNote">Aktiivinen = vähintään yksi kirjaus 12 kk aikana. Kobudo sisältyy harjoitusten kokonaismäärään.</div>
 
       <div class="chart-section">
-        <div class="chart-title">Klubin harjoitukset kuukausittain</div>
+        <div class="chart-title" id="clubChartTitle">Klubin harjoitukset kuukausittain</div>
         <div id="clubChart"></div>
       </div>
 
       <div class="breakdown">
         <div class="breakdown-title">Erittely viikonpäivittäin</div>
-        <div class="breakdown-row"><span>Tiistai</span><span class="v" id="cb-ti">0</span></div>
-        <div class="breakdown-row"><span>Torstai</span><span class="v" id="cb-to">0</span></div>
+        <div class="breakdown-row"><span>Tiistai</span><span><span class="v-kobudo" id="ckb-ti"></span><span class="v" id="cb-ti">0</span></span></div>
+        <div class="breakdown-row"><span>Torstai</span><span><span class="v-kobudo" id="ckb-to"></span><span class="v" id="cb-to">0</span></span></div>
         <div class="breakdown-row"><span>Sunnuntai</span><span class="v" id="cb-su">0</span></div>
       </div>
     </div>
@@ -358,7 +399,19 @@
 
     <div id="adminContent" class="hidden">
       <div class="admin-summary" id="adminSummary"></div>
+      <div class="admin-tools">
+        <button id="adminRefreshBtn">Päivitä</button>
+        <button id="adminZeroBtn" class="hidden">Näytä ilman kirjauksia</button>
+      </div>
+      <div class="admin-updated" id="adminUpdated"></div>
+      <div class="msg" id="adminMsg2"></div>
+      <div class="admin-month-header" id="adminMonthHeader"></div>
       <div class="admin-list" id="adminList"></div>
+      <div class="admin-note">
+        Luvut ovat viimeiseltä 12 kuukaudelta. Punainen luku on jäsenen kaikki harjoitukset,
+        vihreä kobudokerrat suhteessa hänen tiistai- ja torstaiharjoituksiinsa.
+        Kobudoa on vain tiistaisin ja torstaisin.
+      </div>
       <button class="btn admin-logout" id="adminLogoutBtn">Sulje ohjaajanäkymä</button>
     </div>
   </div>
@@ -372,6 +425,10 @@
   // ============================================================
   const API_URL = 'https://script.google.com/macros/s/AKfycbwbF0EziZl_s8m8Mj78PlvL8oQrWtOOq25XBlN8XdMA8Rs1m0dTXbuPum6ErXqkP-HV/exec';
 
+  // Näytä kobudo myös ohjaajanäkymän pylväissä (ohut vihreä palkki karateen sisällä).
+  // Aseta true jos haluat nähdä kobudon rytmin kuukausittain.
+  const SHOW_KOBUDO_IN_SPARKLINE = false;
+
   const FI_DAYS = ['Sunnuntai','Maanantai','Tiistai','Keskiviikko','Torstai','Perjantai','Lauantai'];
   const FI_MONTHS_FULL = ['tammikuuta','helmikuuta','maaliskuuta','huhtikuuta','toukokuuta','kesäkuuta','heinäkuuta','elokuuta','syyskuuta','lokakuuta','marraskuuta','joulukuuta'];
   const FI_MONTHS_SHORT = ['Tam','Hel','Maa','Huh','Tou','Kes','Hei','Elo','Syy','Lok','Mar','Jou'];
@@ -379,7 +436,50 @@
 
   // Tila
   let clubLoaded = false;
-  let adminToken = null;  // tallennettu PIN ohjaajanäkymässä
+  let adminToken = null;   // PIN muistissa vain istunnon ajan, ei tallenneta
+  let adminData = null;    // viimeksi haettu ohjaajadata
+  let adminShowZero = false;
+
+  const LS_NAME = 'ba_nimi';
+  const SS_TOKEN = 'ba_admtok';
+  function saveToken(t) { try { sessionStorage.setItem(SS_TOKEN, t); } catch (e) {} }
+  function loadToken() { try { return sessionStorage.getItem(SS_TOKEN) || null; } catch (e) { return null; } }
+  function dropToken() { try { sessionStorage.removeItem(SS_TOKEN); } catch (e) {} }
+  function rememberName(n) { try { localStorage.setItem(LS_NAME, n); } catch (e) {} }
+  function recallName() { try { return localStorage.getItem(LS_NAME) || ''; } catch (e) { return ''; } }
+
+  // Liukuva jakso: kuukausilaput alkavat siitä kuukaudesta jonka backend kertoo.
+  function monthLabels(alkuKuukausi) {
+    const out = [];
+    for (let i = 0; i < 12; i++) out.push(FI_MONTHS_SHORT[(alkuKuukausi + i) % 12]);
+    return out;
+  }
+  function jaksoTeksti(alkuKuukausi, alkuVuosi) {
+    const nyt = new Date();
+    const alku = FI_MONTHS_SHORT[alkuKuukausi].toLowerCase();
+    const loppu = FI_MONTHS_SHORT[nyt.getMonth()].toLowerCase();
+    return `${alku} ${alkuVuosi} – ${loppu} ${nyt.getFullYear()}`;
+  }
+
+  function postOpts(body) {
+    return {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(body)
+    };
+  }
+
+  // Hidas verkko dojon nurkassa ei saa jättää nappia ikuisesti lataustilaan.
+  async function fetchJson(url, opts) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 20000);
+    try {
+      const res = await fetch(url, Object.assign({}, opts || {}, { signal: ctrl.signal }));
+      return await res.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
 
   // --- Päiväys ---
   function todayStr() {
@@ -419,8 +519,7 @@
   // --- Jäsenlistan lataus ---
   async function loadMembers() {
     try {
-      const res = await fetch(`${API_URL}?action=members`);
-      const data = await res.json();
+      const data = await fetchJson(`${API_URL}?action=members`);
       if (data.success && Array.isArray(data.jasenet)) {
         populateSelect('nimi', data.jasenet, 'Valitse nimi');
         populateSelect('hakuNimi', data.jasenet, 'Valitse nimi');
@@ -443,6 +542,9 @@
       sel.appendChild(o);
     });
     sel.disabled = false;
+
+    const last = recallName();
+    if (last && names.indexOf(last) !== -1) sel.value = last;
   }
   function showMembersError(msg) {
     ['nimi','hakuNimi'].forEach(id => {
@@ -450,9 +552,10 @@
       sel.innerHTML = `<option value="">${msg}</option>`;
       sel.disabled = true;
     });
-    if (!document.getElementById('closedBanner').classList.contains('hidden') === false) {
-      document.getElementById('submitBtn').disabled = true;
-    }
+    // Ilman jäsenlistaa kirjausta ei voi tehdä.
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Kirjaus ei käytettävissä';
   }
   loadMembers();
 
@@ -469,6 +572,9 @@
 
       // Klubi: lataa kerran ensimmäisellä avauksella
       if (tab === 'club' && !clubLoaded) loadClub();
+
+      // Ohjaaja: jos istunto on voimassa, avaa suoraan ilman uutta PIN-syöttöä
+      if (tab === 'admin' && adminToken && !adminData) loadAdminData(true);
     });
   });
 
@@ -482,10 +588,10 @@
   // ============================================================
   //  PYLVÄSKAAVIO (SVG)
   // ============================================================
-  function renderBarChart(monthlyData, opts) {
-    opts = opts || {};
+  function renderBarChart(monthlyData, labels) {
     const max = Math.max.apply(null, monthlyData.concat([1]));
-    const currentMonth = (typeof opts.currentMonth === 'number') ? opts.currentMonth : new Date().getMonth();
+    const currentMonth = 11;  // liukuvassa jaksossa viimeinen slotti on kuluva kuukausi
+    labels = labels || FI_MONTHS_SHORT;
 
     const W = 480, H = 160;
     const chartTop = 24, chartBottom = 130;
@@ -506,17 +612,18 @@
       if (val > 0) {
         svg += `<text x="${(x + w/2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle" class="chart-value-label">${val}</text>`;
       }
-      svg += `<text x="${(x + w/2).toFixed(1)}" y="${labelY}" text-anchor="middle" class="chart-month-label">${FI_MONTHS_SHORT[i]}</text>`;
+      svg += `<text x="${(x + w/2).toFixed(1)}" y="${labelY}" text-anchor="middle" class="chart-month-label">${labels[i]}</text>`;
     });
     svg += '</svg>';
     return svg;
   }
 
-  function renderSparkline(monthlyData, sharedMax) {
+  function renderSparkline(monthlyData, sharedMax, kobudoData) {
     const W = 480, H = 36;
     const max = sharedMax || Math.max.apply(null, monthlyData.concat([1]));
-    const currentMonth = new Date().getMonth();
+    const currentMonth = 11;  // kuluva kuukausi
     const slot = W / 12;
+    const showKobudo = SHOW_KOBUDO_IN_SPARKLINE && Array.isArray(kobudoData);
 
     let svg = `<svg viewBox="0 0 ${W} ${H}" class="admin-sparkline" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">`;
     monthlyData.forEach((val, i) => {
@@ -528,6 +635,16 @@
       const isEmpty = val === 0;
       const cls = isEmpty ? 'chart-bar empty' : (isCurrent ? 'chart-bar current' : 'chart-bar');
       svg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" class="${cls}" rx="1"/>`;
+
+      if (showKobudo) {
+        const kv = kobudoData[i] || 0;
+        if (kv > 0) {
+          const kh = Math.max((kv / max) * (H - 2), 2);
+          const kw = w * 0.4;
+          const kx = x + (w - kw) / 2;
+          svg += `<rect x="${kx.toFixed(1)}" y="${(H - kh).toFixed(1)}" width="${kw.toFixed(1)}" height="${kh.toFixed(1)}" class="chart-bar kobudo" rx="1"/>`;
+        }
+      }
     });
     svg += '</svg>';
     return svg;
@@ -556,14 +673,10 @@
     btn.innerHTML = '<span class="loader"></span>Tallennetaan...';
 
     try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
+      const data = await fetchJson(API_URL, postOpts(payload));
       if (data.success) {
         showMsg('logMsg', `Kirjaus tallennettu: ${nimi}, ${paivaEl.value}${payload.kobudo ? ' + kobudo' : ''}.`, 'ok');
+        rememberName(nimi);
         document.getElementById('nimi').selectedIndex = 0;
         document.getElementById('kobudo').checked = false;
         clubLoaded = false;  // Pakota klubidata päivittymään seuraavalla avaamisella
@@ -581,7 +694,7 @@
   // ============================================================
   //  OMAT TILASTOT
   // ============================================================
-  document.getElementById('hakuBtn').addEventListener('click', async () => {
+  async function loadOwn() {
     hideMsg('ownMsg');
     document.getElementById('ownResult').classList.add('hidden');
     const nimi = document.getElementById('hakuNimi').value;
@@ -592,23 +705,31 @@
     btn.innerHTML = '<span class="loader"></span>Haetaan...';
 
     try {
-      const url = `${API_URL}?action=own&nimi=${encodeURIComponent(nimi)}`;
-      const res = await fetch(url);
-      const data = await res.json();
+      const data = await fetchJson(`${API_URL}?action=own&nimi=${encodeURIComponent(nimi)}`);
       if (data.success) {
+        const jakso = (data.jakso !== undefined) ? data.jakso : data.vuosi;
+        const jaksoKobudo = (data.jaksoKobudo !== undefined) ? data.jaksoKobudo : data.vuosiKobudo;
         document.getElementById('kuukausi').textContent = data.kuukausi;
-        document.getElementById('vuosi').textContent = data.vuosi;
-        document.getElementById('kuukausiKobudo').textContent =
-          data.kuukausiKobudo > 0 ? `+ ${data.kuukausiKobudo} kobudo` : '';
-        document.getElementById('vuosiKobudo').textContent =
-          data.vuosiKobudo > 0 ? `+ ${data.vuosiKobudo} kobudo` : '';
+        document.getElementById('vuosi').textContent = jakso;
+        document.getElementById('kuukausiKobudo').innerHTML =
+          data.kuukausiKobudo > 0
+            ? `joista <span class="kobudo-val">${data.kuukausiKobudo}</span> kobudoa`
+            : '';
+        document.getElementById('vuosiKobudo').innerHTML =
+          jaksoKobudo > 0
+            ? `joista <span class="kobudo-val">${jaksoKobudo}</span> kobudoa`
+            : '';
         document.getElementById('b-ti').textContent = data.paivat.Tiistai || 0;
         document.getElementById('b-to').textContent = data.paivat.Torstai || 0;
         document.getElementById('b-su').textContent = data.paivat.Sunnuntai || 0;
-        document.getElementById('ownChart').innerHTML = renderBarChart(data.kuukaudet || []);
+        document.getElementById('ownChart').innerHTML =
+          renderBarChart(data.kuukaudet || [], monthLabels(data.alkuKuukausi || 0));
+        document.getElementById('ownChartTitle').textContent =
+          `Harjoitukset kuukausittain · ${jaksoTeksti(data.alkuKuukausi || 0, data.alkuVuosi || new Date().getFullYear())}`;
         document.getElementById('ownResult').classList.remove('hidden');
-        if (data.vuosi === 0) {
-          showMsg('ownMsg', `Nimellä "${nimi}" ei löytynyt kirjauksia tältä vuodelta.`, 'err');
+        rememberName(nimi);
+        if (jakso === 0) {
+          showMsg('ownMsg', `Nimellä "${nimi}" ei löytynyt kirjauksia viimeisen 12 kk ajalta.`, 'err');
         }
       } else {
         showMsg('ownMsg', 'Virhe: ' + (data.error || 'tuntematon'), 'err');
@@ -619,6 +740,12 @@
       btn.disabled = false;
       btn.textContent = 'Hae omat tilastot';
     }
+  }
+
+  document.getElementById('hakuBtn').addEventListener('click', loadOwn);
+  document.getElementById('hakuNimi').addEventListener('change', () => {
+    const n = document.getElementById('hakuNimi').value;
+    if (n) { rememberName(n); loadOwn(); }
   });
 
   // ============================================================
@@ -630,16 +757,28 @@
     document.getElementById('clubResult').classList.add('hidden');
 
     try {
-      const res = await fetch(`${API_URL}?action=club`);
-      const data = await res.json();
+      const data = await fetchJson(`${API_URL}?action=club`);
       if (data.success) {
-        document.getElementById('clubVuosi').textContent = data.vuosi;
+        document.getElementById('clubVuosi').textContent =
+          (data.jakso !== undefined) ? data.jakso : data.vuosi;
+        document.getElementById('clubKobudo').textContent =
+          (data.jaksoKobudo !== undefined) ? data.jaksoKobudo : (data.vuosiKobudo || 0);
         document.getElementById('clubAktiiviset').textContent = data.aktiiviset;
+        document.getElementById('clubKobudoJasenet').textContent = data.aktiivisetKobudo || 0;
         document.getElementById('clubKeskiarvo').textContent = data.keskiarvo;
         document.getElementById('cb-ti').textContent = data.paivat.Tiistai || 0;
         document.getElementById('cb-to').textContent = data.paivat.Torstai || 0;
         document.getElementById('cb-su').textContent = data.paivat.Sunnuntai || 0;
-        document.getElementById('clubChart').innerHTML = renderBarChart(data.kuukaudet || []);
+
+        const kti = (data.paivatKobudo && data.paivatKobudo.Tiistai) || 0;
+        const kto = (data.paivatKobudo && data.paivatKobudo.Torstai) || 0;
+        document.getElementById('ckb-ti').textContent = kti > 0 ? `${kti} kobudoa` : '';
+        document.getElementById('ckb-to').textContent = kto > 0 ? `${kto} kobudoa` : '';
+
+        document.getElementById('clubChart').innerHTML =
+          renderBarChart(data.kuukaudet || [], monthLabels(data.alkuKuukausi || 0));
+        document.getElementById('clubChartTitle').textContent =
+          `Klubin harjoitukset kuukausittain · ${jaksoTeksti(data.alkuKuukausi || 0, data.alkuVuosi || new Date().getFullYear())}`;
         document.getElementById('clubResult').classList.remove('hidden');
         clubLoaded = true;
       } else {
@@ -659,6 +798,8 @@
     if (e.key === 'Enter') document.getElementById('adminLoginBtn').click();
   });
 
+  // Kirjautuminen: PIN kulkee POST-rungossa, ei osoiterivillä.
+  // Vastauksena saadaan istuntotunniste, jolla data haetaan jatkossa.
   document.getElementById('adminLoginBtn').addEventListener('click', async () => {
     hideMsg('adminMsg');
     const pin = document.getElementById('adminPin').value.trim();
@@ -669,14 +810,13 @@
     btn.innerHTML = '<span class="loader"></span>Tarkistetaan...';
 
     try {
-      const res = await fetch(`${API_URL}?action=admin&pin=${encodeURIComponent(pin)}`);
-      const data = await res.json();
+      const data = await fetchJson(API_URL, postOpts({ action: 'adminLogin', pin: pin }));
       if (data.success) {
-        adminToken = pin;
-        renderAdminView(data);
-        document.getElementById('adminPinView').classList.add('hidden');
-        document.getElementById('adminContent').classList.remove('hidden');
+        adminToken = data.token || null;
+        if (adminToken) saveToken(adminToken);
         document.getElementById('adminPin').value = '';
+        renderAdminView(data);
+        showAdminContent(true);
       } else {
         showMsg('adminMsg', data.error || 'Virhe', 'err');
       }
@@ -688,54 +828,144 @@
     }
   });
 
-  document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+  function showAdminContent(show) {
+    document.getElementById('adminPinView').classList.toggle('hidden', show);
+    document.getElementById('adminContent').classList.toggle('hidden', !show);
+  }
+
+  function clearAdminSession() {
     adminToken = null;
-    document.getElementById('adminContent').classList.add('hidden');
-    document.getElementById('adminPinView').classList.remove('hidden');
+    adminData = null;
+    adminShowZero = false;
+    dropToken();
     document.getElementById('adminList').innerHTML = '';
-    hideMsg('adminMsg');
+    document.getElementById('adminMonthHeader').innerHTML = '';
+    hideMsg('adminMsg2');
+    showAdminContent(false);
+  }
+
+  // Datan haku istuntotunnisteella. silent = taustalataus välilehteä avattaessa.
+  async function loadAdminData(silent) {
+    if (!adminToken) return;
+    const btn = document.getElementById('adminRefreshBtn');
+    btn.disabled = true;
+    btn.textContent = 'Päivitetään...';
+    try {
+      const data = await fetchJson(API_URL, postOpts({ action: 'adminData', token: adminToken }));
+      if (data.success) {
+        hideMsg('adminMsg2');
+        renderAdminView(data);
+        showAdminContent(true);
+      } else {
+        clearAdminSession();
+        showMsg('adminMsg', data.error || 'Virhe', 'err');
+      }
+    } catch (err) {
+      if (!silent) showMsg('adminMsg2', 'Yhteysvirhe.', 'err');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Päivitä';
+    }
+  }
+
+  document.getElementById('adminRefreshBtn').addEventListener('click', () => loadAdminData(false));
+
+  document.getElementById('adminZeroBtn').addEventListener('click', () => {
+    adminShowZero = !adminShowZero;
+    if (adminData) renderAdminView(adminData);
   });
 
+  document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+    const token = adminToken;
+    clearAdminSession();
+    hideMsg('adminMsg');
+    // Mitätöi istunto myös palvelimella; vastausta ei tarvitse odottaa.
+    if (token) {
+      fetchJson(API_URL, postOpts({ action: 'adminLogout', token: token })).catch(() => {});
+    }
+  });
+
+  // Jos istunto on jo auki tässä välilehdessä, otetaan se käyttöön sivun latautuessa.
+  adminToken = loadToken();
+
   function renderAdminView(data) {
+    adminData = data;
     const list = document.getElementById('adminList');
     list.innerHTML = '';
 
-    // Yhteenveto
-    const yhteensaVuosi = (data.kuukaudetYhteensa || []).reduce((a,b) => a+b, 0);
-    const aktiiviset = (data.jasenet || []).filter(j => j.vuosi > 0).length;
-    document.getElementById('adminSummary').innerHTML =
-      `Vuosi <strong>${data.vuosi}</strong> · ` +
-      `<strong>${yhteensaVuosi}</strong> kirjausta yhteensä · ` +
-      `<strong>${aktiiviset}</strong> / <strong>${data.jasenet.length}</strong> jäsentä aktiivisia`;
+    const jasenet = data.jasenet || [];
+    const yhteensa = (data.kuukaudetYhteensa || []).reduce((a, b) => a + b, 0);
+    const kobudoYhteensa = data.kobudoYhteensa || 0;
+    const aktiiviset = jasenet.filter(j => j.jakso > 0).length;
+    const nollat = jasenet.length - aktiiviset;
+    const alkuKk = data.alkuKuukausi || 0;
+    const alkuV = data.alkuVuosi || new Date().getFullYear();
 
-    // Yhteinen y-akseli kaikille jäsenille → vertailtavuus
+    document.getElementById('adminSummary').innerHTML =
+      `Viimeiset 12 kk · <strong>${jaksoTeksti(alkuKk, alkuV)}</strong><br>` +
+      `<strong>${yhteensa}</strong> kirjausta, joista ` +
+      `<span class="kobudo-val">${kobudoYhteensa}</span> kobudoa · ` +
+      `<strong>${aktiiviset}</strong> / <strong>${jasenet.length}</strong> jäsentä aktiivisia`;
+
+    const kello = new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('adminUpdated').textContent = `Päivitetty klo ${kello}`;
+
+    // Jäsenet ilman kirjauksia piilossa oletuksena — lista pysyy luettavana
+    const zeroBtn = document.getElementById('adminZeroBtn');
+    if (nollat === 0) {
+      zeroBtn.classList.add('hidden');
+    } else {
+      zeroBtn.classList.remove('hidden');
+      zeroBtn.textContent = adminShowZero
+        ? `Piilota ${nollat} ilman kirjauksia`
+        : `Näytä ${nollat} ilman kirjauksia`;
+    }
+
+    const nakyvat = adminShowZero ? jasenet : jasenet.filter(j => j.jakso > 0);
+
+    document.getElementById('adminMonthHeader').innerHTML =
+      nakyvat.length > 0 ? monthLabels(alkuKk).map(m => `<span>${m}</span>`).join('') : '';
+
+    if (nakyvat.length === 0) {
+      list.innerHTML = '<div class="loading-state">Ei kirjauksia viimeisen 12 kk ajalta.</div>';
+      return;
+    }
+
+    // Yhteinen y-akseli kaikille jäsenille → pylväät ovat vertailukelpoisia
     let sharedMax = 1;
-    (data.jasenet || []).forEach(j => {
+    nakyvat.forEach(j => {
       const m = Math.max.apply(null, j.kuukaudet.concat([1]));
       if (m > sharedMax) sharedMax = m;
     });
 
-    // Kuukausilabelit pylväiden ylle
-    const monthRow = `<div class="admin-month-row">${FI_MONTHS_SHORT.map(m => `<span>${m}</span>`).join('')}</div>`;
+    const frag = document.createDocumentFragment();
+    nakyvat.forEach(j => {
+      const isZero = j.jakso === 0;
+      const kobudo = j.kobudo || 0;
+      const tito = j.tito || 0;
 
-    (data.jasenet || []).forEach(j => {
-      const isZero = j.vuosi === 0;
+      let kobudoHtml = '';
+      if (!isZero) {
+        kobudoHtml = tito > 0
+          ? `<span class="admin-row-kobudo${kobudo === 0 ? ' none' : ''}">${kobudo}/${tito} kobudo</span>`
+          : '<span class="admin-row-kobudo none">ei ti–to</span>';
+      }
+
       const row = document.createElement('div');
       row.className = 'admin-row';
       row.innerHTML = `
         <div class="admin-row-header">
           <span class="admin-row-name${isZero ? ' zero' : ''}">${escapeHtml(j.nimi)}</span>
-          <span class="admin-row-total${isZero ? ' zero' : ''}">${j.vuosi}</span>
+          <span class="admin-row-figures">
+            ${kobudoHtml}
+            <span class="admin-row-total${isZero ? ' zero' : ''}">${j.jakso}</span>
+          </span>
         </div>
-        ${renderSparkline(j.kuukaudet, sharedMax)}
-        ${monthRow}
+        ${renderSparkline(j.kuukaudet, sharedMax, j.kuukaudetKobudo)}
       `;
-      list.appendChild(row);
+      frag.appendChild(row);
     });
-
-    if ((data.jasenet || []).length === 0) {
-      list.innerHTML = '<div class="loading-state">Ei jäseniä listassa.</div>';
-    }
+    list.appendChild(frag);
   }
 
   function escapeHtml(s) {
