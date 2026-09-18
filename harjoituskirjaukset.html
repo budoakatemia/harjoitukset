@@ -399,7 +399,7 @@
       <div class="admin-list" id="adminList"></div>
       <div class="admin-note">
         Luvut ovat viimeiseltä 12 kuukaudelta. Punainen luku on karateharjoitukset,
-        vihreä kobudoharjoitukset suhteessa jäsenen omiin tiistai- ja torstaikäynteihin.
+        vihreä kobudokäynnit suhteessa kaikkiin pidettyihin kobudoharjoituksiin.
         Kobudo harjoitellaan karaten yhteydessä, vain tiistaisin ja torstaisin.
       </div>
       <button class="btn admin-logout" id="adminLogoutBtn">Sulje ohjaajanäkymä</button>
@@ -902,6 +902,7 @@
     const aktiiviset = jasenet.filter(j => j.jakso > 0).length;
     const nollat = jasenet.length - aktiiviset;
     const alkuKk = data.alkuKuukausi || 0;
+    const kobudoHarjoituksia = data.kobudoHarjoituksia || 0;
     const alkuV = data.alkuVuosi || new Date().getFullYear();
 
     document.getElementById('adminSummary').innerHTML =
@@ -946,13 +947,12 @@
     nakyvat.forEach(j => {
       const isZero = j.jakso === 0;
       const kobudo = j.kobudo || 0;
-      const tito = j.tito || 0;
 
+      // Nimittäjä on pidettyjen kobudoharjoitusten määrä — sama kaikille,
+      // joten jäsenten luvut ovat suoraan vertailukelpoisia.
       let kobudoHtml = '';
-      if (!isZero) {
-        kobudoHtml = tito > 0
-          ? `<span class="admin-row-kobudo${kobudo === 0 ? ' none' : ''}">${kobudo}/${tito} kobudo</span>`
-          : '<span class="admin-row-kobudo none">ei ti–to</span>';
+      if (!isZero && kobudoHarjoituksia > 0) {
+        kobudoHtml = `<span class="admin-row-kobudo${kobudo === 0 ? ' none' : ''}">${kobudo}/${kobudoHarjoituksia} kobudo</span>`;
       }
 
       const row = document.createElement('div');
