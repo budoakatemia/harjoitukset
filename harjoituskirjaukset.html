@@ -310,12 +310,12 @@
         <div class="stat">
           <div class="label-stat">Tässä kuussa</div>
           <div class="num" id="kuukausi">0</div>
-          <div class="num-sub" id="kuukausiKobudo"></div>
+          <div class="num-sub">karatea<span id="kuukausiKobudo"></span></div>
         </div>
         <div class="stat">
           <div class="label-stat">12 kk</div>
           <div class="num" id="vuosi">0</div>
-          <div class="num-sub" id="vuosiKobudo"></div>
+          <div class="num-sub">karatea<span id="vuosiKobudo"></span></div>
         </div>
       </div>
 
@@ -343,7 +343,7 @@
         <div class="stat">
           <div class="label-stat">12 kk</div>
           <div class="num" id="clubVuosi">0</div>
-          <div class="num-sub">harjoitusta, joista<br><span class="kobudo-val" id="clubKobudo">0</span> kobudoa</div>
+          <div class="num-sub">karatea<br><span class="kobudo-val" id="clubKobudo">0</span> kobudoa</div>
         </div>
         <div class="stat">
           <div class="label-stat">Aktiivisia jäseniä</div>
@@ -398,9 +398,9 @@
       <div class="admin-month-header" id="adminMonthHeader"></div>
       <div class="admin-list" id="adminList"></div>
       <div class="admin-note">
-        Luvut ovat viimeiseltä 12 kuukaudelta. Punainen luku on jäsenen kaikki harjoitukset,
-        vihreä kobudokerrat suhteessa hänen tiistai- ja torstaiharjoituksiinsa.
-        Kobudoa on vain tiistaisin ja torstaisin.
+        Luvut ovat viimeiseltä 12 kuukaudelta. Punainen luku on karateharjoitukset,
+        vihreä kobudoharjoitukset suhteessa jäsenen omiin tiistai- ja torstaikäynteihin.
+        Kobudo harjoitellaan karaten yhteydessä, vain tiistaisin ja torstaisin.
       </div>
       <button class="btn admin-logout" id="adminLogoutBtn">Sulje ohjaajanäkymä</button>
     </div>
@@ -705,11 +705,11 @@
         document.getElementById('vuosi').textContent = jakso;
         document.getElementById('kuukausiKobudo').innerHTML =
           data.kuukausiKobudo > 0
-            ? `joista <span class="kobudo-val">${data.kuukausiKobudo}</span> kobudoa`
+            ? `<br><span class="kobudo-val">${data.kuukausiKobudo}</span> kobudoa`
             : '';
         document.getElementById('vuosiKobudo').innerHTML =
           jaksoKobudo > 0
-            ? `joista <span class="kobudo-val">${jaksoKobudo}</span> kobudoa`
+            ? `<br><span class="kobudo-val">${jaksoKobudo}</span> kobudoa`
             : '';
         document.getElementById('b-ti').textContent = data.paivat.Tiistai || 0;
         document.getElementById('b-to').textContent = data.paivat.Torstai || 0;
@@ -771,7 +771,8 @@
         document.getElementById('clubKobudo').textContent =
           (data.kobudoHarjoituksia !== undefined) ? data.kobudoHarjoituksia : kaynnitKobudo;
         document.getElementById('clubNote').textContent =
-          `Aktiivinen = vähintään yksi käynti 12 kk aikana. Käyntejä yhteensä ${kaynnit}, joista ${kaynnitKobudo} kobudossa.`;
+          `Kobudo harjoitellaan karateharjoituksen yhteydessä, joten lukuja ei lasketa yhteen. `
+          + `Aktiivinen = vähintään yksi käynti 12 kk aikana (käyntejä yhteensä ${kaynnit}).`;
         document.getElementById('clubAktiiviset').textContent = data.aktiiviset;
         document.getElementById('clubKobudoJasenet').textContent = data.aktiivisetKobudo || 0;
         document.getElementById('clubKeskiarvo').textContent = data.keskiarvo;
