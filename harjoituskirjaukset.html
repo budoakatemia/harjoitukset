@@ -6,7 +6,7 @@
 <title>Budo Akatemia – Harjoituskirjaukset</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg:        #f5f1ea;
@@ -83,27 +83,24 @@
   }
   select:focus, input:focus { outline: none; border-color: var(--accent); }
   select:focus-visible, input:focus-visible,
-  .btn:focus-visible, .tab:focus-visible, .admin-tools button:focus-visible,
-  .day-opt input:focus-visible + label {
+  .btn:focus-visible, .tab:focus-visible, .admin-tools button:focus-visible {
     outline: 2px solid var(--accent); outline-offset: 2px;
   }
   select:disabled { background-color: #f5f1ea; opacity: .6; cursor: wait; }
 
   .hp { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important; }
 
-  .days { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .day-opt input { display: none; }
-  .day-opt label {
-    display: flex; flex-direction: column; align-items: center;
-    padding: 14px 8px; border: 1.5px solid var(--line);
-    border-radius: 4px; cursor: pointer; text-align: center;
-    transition: all .15s; text-transform: none; letter-spacing: 0;
-    font-weight: 500; color: var(--ink); font-size: 15px; margin: 0;
+  .session {
+    text-align: center; padding: 16px 14px;
+    background: #faf8f3; border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 4px;
   }
-  .day-opt .small { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
-  .day-opt input:checked + label { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-dk); }
-  .day-opt input:checked + label .small { color: var(--accent); }
-  .day-opt input:disabled + label { opacity: .3; cursor: not-allowed; }
+  .session-main {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 600; letter-spacing: .5px; line-height: 1.2;
+  }
+  .session-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .session-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; }
 
   .kobudo { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 4px; background: #faf8f3; transition: opacity .2s; }
   .kobudo.disabled { opacity: .4; pointer-events: none; }
@@ -114,8 +111,6 @@
   .btn { width: 100%; padding: 14px; background: var(--ink); color: var(--paper); border: none; border-radius: 4px; font-family: inherit; font-size: 15px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: background .15s; margin-top: 4px; }
   .btn:hover:not(:disabled) { background: var(--accent); }
   .btn:disabled { opacity: .5; cursor: not-allowed; }
-
-  .date-display { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--ink); padding: 12px 14px; background: #faf8f3; border: 1px solid var(--line); border-radius: 4px; text-align: center; letter-spacing: 0.5px; }
 
   .closed-banner { background: #fef5e7; border: 1px solid #f0c97a; color: #6b4a1a; padding: 16px; border-radius: 4px; margin-bottom: 18px; font-size: 14px; text-align: center; }
   .closed-banner strong { font-weight: 600; }
@@ -150,7 +145,8 @@
   .breakdown-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px dashed var(--line); }
   .breakdown-row:last-child { border-bottom: none; }
   .breakdown-row .v { font-weight: 600; }
-  .breakdown-row .v-kobudo { color: var(--kobudo); font-weight: 500; font-size: 12px; margin-left: 10px; }
+  .breakdown-figures { display: inline-flex; align-items: baseline; gap: 14px; }
+  .breakdown-row .v-kobudo { color: var(--kobudo); font-weight: 500; font-size: 12px; }
 
   /* Pylväskaavio */
   .chart-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
@@ -268,9 +264,12 @@
       Kirjaa harjoitus aina sen päivänä — tiistaina, torstaina tai sunnuntaina.
     </div>
 
-    <div class="field">
-      <label>Päiväys</label>
-      <div class="date-display" id="dateDisplay"></div>
+    <div class="field" id="sessionField">
+      <div class="session">
+        <div class="session-main" id="sessionTitle">Harjoitus</div>
+        <div class="session-sub" id="sessionDate"></div>
+      </div>
+      <div class="session-note">Harjoitukset ti, to ja su</div>
     </div>
 
     <div class="field">
@@ -279,15 +278,6 @@
         <option value="">Ladataan jäsenlistaa...</option>
       </select>
       <input type="text" id="hp_field" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-    </div>
-
-    <div class="field">
-      <label>Harjoituspäivä</label>
-      <div class="days">
-        <div class="day-opt"><input type="radio" name="paiva" id="d-ti" value="Tiistai"><label for="d-ti">Ti<span class="small">Tiistai</span></label></div>
-        <div class="day-opt"><input type="radio" name="paiva" id="d-to" value="Torstai"><label for="d-to">To<span class="small">Torstai</span></label></div>
-        <div class="day-opt"><input type="radio" name="paiva" id="d-su" value="Sunnuntai"><label for="d-su">Su<span class="small">Sunnuntai</span></label></div>
-      </div>
     </div>
 
     <div class="field">
@@ -363,20 +353,20 @@
         <div class="stat">
           <div class="label-stat">Keskiarvo</div>
           <div class="num" id="clubKeskiarvo">0</div>
-          <div class="num-sub">harjoitusta<br>per jäsen</div>
+          <div class="num-sub">käyntiä<br>per jäsen</div>
         </div>
       </div>
-      <div class="stat-note" id="clubNote">Aktiivinen = vähintään yksi kirjaus 12 kk aikana. Kobudo sisältyy harjoitusten kokonaismäärään.</div>
+      <div class="stat-note" id="clubNote">Aktiivinen = vähintään yksi käynti 12 kk aikana.</div>
 
       <div class="chart-section">
-        <div class="chart-title" id="clubChartTitle">Klubin harjoitukset kuukausittain</div>
+        <div class="chart-title" id="clubChartTitle">Käynnit kuukausittain</div>
         <div id="clubChart"></div>
       </div>
 
       <div class="breakdown">
-        <div class="breakdown-title">Erittely viikonpäivittäin</div>
-        <div class="breakdown-row"><span>Tiistai</span><span><span class="v-kobudo" id="ckb-ti"></span><span class="v" id="cb-ti">0</span></span></div>
-        <div class="breakdown-row"><span>Torstai</span><span><span class="v-kobudo" id="ckb-to"></span><span class="v" id="cb-to">0</span></span></div>
+        <div class="breakdown-title">Käynnit viikonpäivittäin</div>
+        <div class="breakdown-row"><span>Tiistai</span><span class="breakdown-figures"><span class="v-kobudo" id="ckb-ti"></span><span class="v" id="cb-ti">0</span></span></div>
+        <div class="breakdown-row"><span>Torstai</span><span class="breakdown-figures"><span class="v-kobudo" id="ckb-to"></span><span class="v" id="cb-to">0</span></span></div>
         <div class="breakdown-row"><span>Sunnuntai</span><span class="v" id="cb-su">0</span></div>
       </div>
     </div>
@@ -430,11 +420,11 @@
   const SHOW_KOBUDO_IN_SPARKLINE = false;
 
   const FI_DAYS = ['Sunnuntai','Maanantai','Tiistai','Keskiviikko','Torstai','Perjantai','Lauantai'];
-  const FI_MONTHS_FULL = ['tammikuuta','helmikuuta','maaliskuuta','huhtikuuta','toukokuuta','kesäkuuta','heinäkuuta','elokuuta','syyskuuta','lokakuuta','marraskuuta','joulukuuta'];
   const FI_MONTHS_SHORT = ['Tam','Hel','Maa','Huh','Tou','Kes','Hei','Elo','Syy','Lok','Mar','Jou'];
-  const DAY_TO_RADIO = { 0: 'd-su', 2: 'd-ti', 4: 'd-to' };
+  const TRAINING_DAYS = [0, 2, 4];  // su, ti, to
 
   // Tila
+  let selectedDay = null;   // tämän päivän harjoituspäivä, tai null jos ei harjoitusta
   let clubLoaded = false;
   let adminToken = null;   // PIN muistissa vain istunnon ajan, ei tallenneta
   let adminData = null;    // viimeksi haettu ohjaajadata
@@ -482,47 +472,50 @@
   }
 
   // --- Päiväys ---
-  function todayStr() {
+  function todayFi() {
     const d = new Date();
-    return `${FI_DAYS[d.getDay()]} ${d.getDate()}. ${FI_MONTHS_FULL[d.getMonth()]} ${d.getFullYear()}`;
+    return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
   }
   function todayISO() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
-  document.getElementById('dateDisplay').textContent = todayStr();
-
-  // --- Lukitse päiväpainikkeet ---
-  function setupDayLock() {
+  // --- Harjoituspäivä määräytyy kellosta, ei käyttäjän valinnasta ---
+  function setupSession() {
     const wd = new Date().getDay();
-    const isTraining = (wd === 0 || wd === 2 || wd === 4);
-    const allRadios = document.querySelectorAll('input[name="paiva"]');
-    if (!isTraining) {
+
+    if (TRAINING_DAYS.indexOf(wd) === -1) {
+      selectedDay = null;
       document.getElementById('closedBanner').classList.remove('hidden');
       document.getElementById('closedDay').textContent = FI_DAYS[wd];
-      allRadios.forEach(r => r.disabled = true);
+      document.getElementById('sessionField').classList.add('hidden');
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
       btn.textContent = 'Lomake suljettu';
-    } else {
-      const allowedId = DAY_TO_RADIO[wd];
-      allRadios.forEach(r => {
-        if (r.id === allowedId) { r.disabled = false; r.checked = true; }
-        else { r.disabled = true; }
-      });
-      const kobudoAllowed = (wd === 2 || wd === 4);
-      document.getElementById('kobudoBox').classList.toggle('disabled', !kobudoAllowed);
+      return;
     }
+
+    selectedDay = FI_DAYS[wd];  // Tiistai / Torstai / Sunnuntai
+    document.getElementById('sessionTitle').textContent = `${selectedDay}n harjoitus`;
+    document.getElementById('sessionDate').textContent = todayFi();
+
+    const kobudoAllowed = (wd === 2 || wd === 4);
+    document.getElementById('kobudoBox').classList.toggle('disabled', !kobudoAllowed);
   }
-  setupDayLock();
+  setupSession();
 
   // --- Jäsenlistan lataus ---
-  async function loadMembers() {
+  // Sivun avaus: jäsenlista ja klubin luvut yhdellä kutsulla.
+  async function loadInit() {
     try {
-      const data = await fetchJson(`${API_URL}?action=members`);
+      const data = await fetchJson(`${API_URL}?action=init`);
       if (data.success && Array.isArray(data.jasenet)) {
         populateSelect('nimi', data.jasenet, 'Valitse nimi');
         populateSelect('hakuNimi', data.jasenet, 'Valitse nimi');
+        if (data.club && data.club.success) {
+          renderClub(data.club);
+          clubLoaded = true;
+        }
       } else {
         showMembersError(data.error || 'Jäsenlistan haku epäonnistui');
       }
@@ -557,7 +550,7 @@
     btn.disabled = true;
     btn.textContent = 'Kirjaus ei käytettävissä';
   }
-  loadMembers();
+  loadInit();
 
   // --- Tabit ---
   document.querySelectorAll('.tab').forEach(t => {
@@ -656,14 +649,13 @@
   document.getElementById('submitBtn').addEventListener('click', async () => {
     hideMsg('logMsg');
     const nimi = document.getElementById('nimi').value;
-    const paivaEl = document.querySelector('input[name="paiva"]:checked');
     const honeypot = document.getElementById('hp_field').value;
 
     if (!nimi) { showMsg('logMsg', 'Valitse nimesi listalta.', 'err'); return; }
-    if (!paivaEl) { showMsg('logMsg', 'Valitse harjoituspäivä.', 'err'); return; }
+    if (!selectedDay) { showMsg('logMsg', 'Tänään ei ole harjoitusta.', 'err'); return; }
 
     const payload = {
-      nimi, paiva: paivaEl.value, paivays: todayISO(),
+      nimi, paiva: selectedDay, paivays: todayISO(),
       kobudo: document.getElementById('kobudo').checked,
       hp: honeypot
     };
@@ -675,7 +667,7 @@
     try {
       const data = await fetchJson(API_URL, postOpts(payload));
       if (data.success) {
-        showMsg('logMsg', `Kirjaus tallennettu: ${nimi}, ${paivaEl.value}${payload.kobudo ? ' + kobudo' : ''}.`, 'ok');
+        showMsg('logMsg', `Kirjaus tallennettu: ${nimi}, ${selectedDay}${payload.kobudo ? ' + kobudo' : ''}.`, 'ok');
         rememberName(nimi);
         document.getElementById('nimi').selectedIndex = 0;
         document.getElementById('kobudo').checked = false;
@@ -759,10 +751,27 @@
     try {
       const data = await fetchJson(`${API_URL}?action=club`);
       if (data.success) {
+        renderClub(data);
+      } else {
+        showMsg('clubMsg', 'Virhe: ' + (data.error || 'tuntematon'), 'err');
+      }
+    } catch (err) {
+      showMsg('clubMsg', 'Yhteysvirhe. Yritä uudelleen.', 'err');
+    } finally {
+      document.getElementById('clubLoading').classList.add('hidden');
+    }
+  }
+
+  function renderClub(data) {
+        const kaynnit = (data.jakso !== undefined) ? data.jakso : data.vuosi;
+        const kaynnitKobudo = (data.jaksoKobudo !== undefined) ? data.jaksoKobudo : (data.vuosiKobudo || 0);
+        // Iso luku = pidettyjä harjoituksia, ei käyntikirjauksia
         document.getElementById('clubVuosi').textContent =
-          (data.jakso !== undefined) ? data.jakso : data.vuosi;
+          (data.harjoituksia !== undefined) ? data.harjoituksia : kaynnit;
         document.getElementById('clubKobudo').textContent =
-          (data.jaksoKobudo !== undefined) ? data.jaksoKobudo : (data.vuosiKobudo || 0);
+          (data.kobudoHarjoituksia !== undefined) ? data.kobudoHarjoituksia : kaynnitKobudo;
+        document.getElementById('clubNote').textContent =
+          `Aktiivinen = vähintään yksi käynti 12 kk aikana. Käyntejä yhteensä ${kaynnit}, joista ${kaynnitKobudo} kobudossa.`;
         document.getElementById('clubAktiiviset').textContent = data.aktiiviset;
         document.getElementById('clubKobudoJasenet').textContent = data.aktiivisetKobudo || 0;
         document.getElementById('clubKeskiarvo').textContent = data.keskiarvo;
@@ -772,23 +781,16 @@
 
         const kti = (data.paivatKobudo && data.paivatKobudo.Tiistai) || 0;
         const kto = (data.paivatKobudo && data.paivatKobudo.Torstai) || 0;
-        document.getElementById('ckb-ti').textContent = kti > 0 ? `${kti} kobudoa` : '';
-        document.getElementById('ckb-to').textContent = kto > 0 ? `${kto} kobudoa` : '';
+        document.getElementById('ckb-ti').textContent = kti > 0 ? `${kti} kobudo` : '';
+        document.getElementById('ckb-to').textContent = kto > 0 ? `${kto} kobudo` : '';
 
         document.getElementById('clubChart').innerHTML =
           renderBarChart(data.kuukaudet || [], monthLabels(data.alkuKuukausi || 0));
         document.getElementById('clubChartTitle').textContent =
-          `Klubin harjoitukset kuukausittain · ${jaksoTeksti(data.alkuKuukausi || 0, data.alkuVuosi || new Date().getFullYear())}`;
+          `Käynnit kuukausittain · ${jaksoTeksti(data.alkuKuukausi || 0, data.alkuVuosi || new Date().getFullYear())}`;
         document.getElementById('clubResult').classList.remove('hidden');
+        document.getElementById('clubLoading').classList.add('hidden');
         clubLoaded = true;
-      } else {
-        showMsg('clubMsg', 'Virhe: ' + (data.error || 'tuntematon'), 'err');
-      }
-    } catch (err) {
-      showMsg('clubMsg', 'Yhteysvirhe. Yritä uudelleen.', 'err');
-    } finally {
-      document.getElementById('clubLoading').classList.add('hidden');
-    }
   }
 
   // ============================================================
@@ -916,9 +918,10 @@
       zeroBtn.classList.add('hidden');
     } else {
       zeroBtn.classList.remove('hidden');
+      const sana = nollat === 1 ? 'jäsen' : 'jäsentä';
       zeroBtn.textContent = adminShowZero
-        ? `Piilota ${nollat} ilman kirjauksia`
-        : `Näytä ${nollat} ilman kirjauksia`;
+        ? `Piilota ${nollat} ${sana} ilman käyntejä`
+        : `Näytä ${nollat} ${sana} ilman käyntejä`;
     }
 
     const nakyvat = adminShowZero ? jasenet : jasenet.filter(j => j.jakso > 0);
